@@ -52,25 +52,25 @@ export async function deleteTransaction(req, res) {
 export async function getSummaryByUserId(req, res) {
   try {
     const { userId } = req.params;
-    const balance = await sql`
+    const balanceResult = await sql`
                 SELECT COALESCE(SUM(amount),0) as balance FROM transactions
                  WHERE user_id = ${userId}
             `;
 
-    const income = await sql`
+    const incomeResult = await sql`
                 SELECT COALESCE(SUM(amount),0) as income FROM transactions WHERE 
                 user_id = ${userId} AND amount > 0
             `;
 
-    const expense = await sql`
+    const expenseResult = await sql`
             SELECT COALESCE(SUM(amount),0) as income FROM transactions WHERE 
             user_id = ${userId} AND amount < 0
         `;
 
     res.status(200).json({
-      balance: balance[0],
-      income: income[0],
-      expense: expense[0],
+      balance: balanceResult[0].balance,
+      income: incomeResult[0].income,
+      expenses: expenseResult[0].expense, // ✅ match frontend
     });
   } catch (error) {
     console.log("Error Getting summary", error);
